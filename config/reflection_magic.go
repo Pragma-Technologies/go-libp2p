@@ -98,6 +98,26 @@ func makeArgumentConstructors(fnType reflect.Type, argTypes map[reflect.Type]con
 	return out, nil
 }
 
+func checkConstructorOpts(t reflect.Type, opts ...interface{}) error {
+	if !t.IsVariadic() {
+		if len(opts) > 0 {
+			return errors.New("constructor doesn't accept any options")
+		}
+		return nil
+	}
+	// variadic parameters always go last
+	optType := t.In(t.NumIn() - 1).Elem()
+	for _, opt := range opts {
+		if opt == nil {
+			return errors.New("expected a transport option, got nil")
+		}
+		if reflect.TypeOf(opt) != optType {
+			return fmt.Errorf("expected option of type %s, got %s", optType, reflect.TypeOf(opt))
+		}
+	}
+	return nil
+}
+
 // makes a transport constructor.
 func makeConstructor(
 	tpt interface{},
@@ -121,6 +141,9 @@ func makeConstructor(
 
 	argConstructors, err := makeArgumentConstructors(t, argTypes)
 	if err != nil {
+		return nil, err
+	}
+	if err := checkConstructorOpts(t, opts...); err != nil {
 		return nil, err
 	}
 

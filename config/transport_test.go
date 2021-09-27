@@ -16,6 +16,20 @@ func TestTransportVariadicOptions(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestConstructorWithoutOptsCalledWithOpts(t *testing.T) {
+	_, err := TransportConstructor(func(_ *tptu.Upgrader) transport.Transport {
+		return nil
+	}, 42)
+	require.EqualError(t, err, "constructor doesn't accept any options")
+}
+
+func TestConstructorWithOptsTypeMismatch(t *testing.T) {
+	_, err := TransportConstructor(func(_ *tptu.Upgrader, opts ...int) transport.Transport {
+		return nil
+	}, 42, "foo")
+	require.EqualError(t, err, "expected option of type int, got string")
+}
+
 func TestConstructorWithOpts(t *testing.T) {
 	var options []int
 	c, err := TransportConstructor(func(_ *tptu.Upgrader, opts ...int) transport.Transport {
