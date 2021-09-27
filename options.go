@@ -17,9 +17,9 @@ import (
 	"github.com/libp2p/go-libp2p-core/pnet"
 
 	"github.com/libp2p/go-libp2p/config"
-	autorelay "github.com/libp2p/go-libp2p/p2p/host/autorelay"
+	"github.com/libp2p/go-libp2p/p2p/host/autorelay"
 	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
-	holepunch "github.com/libp2p/go-libp2p/p2p/protocol/holepunch"
+	"github.com/libp2p/go-libp2p/p2p/protocol/holepunch"
 
 	ma "github.com/multiformats/go-multiaddr"
 	madns "github.com/multiformats/go-multiaddr-dns"
@@ -124,8 +124,8 @@ func Muxer(name string, tpt interface{}) Option {
 // * Public Key
 // * Address filter (filter.Filter)
 // * Peerstore
-func Transport(tpt interface{}) Option {
-	tptc, err := config.TransportConstructor(tpt)
+func Transport(tpt interface{}, opts ...interface{}) Option {
+	tptc, err := config.TransportConstructor(tpt, opts...)
 	err = traceError(err, 1)
 	return func(cfg *Config) error {
 		if err != nil {
